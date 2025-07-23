@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive 7-Day Japanese Conversation Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The application uses a tab-based navigation structure, allowing users to switch between a dedicated pronunciation guide and each of the 7 daily lessons. This design was chosen because it mirrors the logical, sequential flow of a learning plan while also providing immediate, non-linear access to any section for review. Each day is presented as a self-contained "card" with clear sections for phrases, grammar, and interactive practice elements (flip cards), making the information digestible and focused. This structure enhances usability by breaking down the content into manageable, task-oriented chunks, which is ideal for a beginner's learning journey. -->
+    <!-- Visualization & Content Choices: Report Info: Daily lesson plans (phrases, grammar, practice). -> Goal: Inform, Organize, and Practice. -> Viz/Presentation Method: Interactive lists and flip cards. -> Interaction: Users click navigation tabs to display the relevant day's content. For practice, users click on vocabulary "flashcards" to flip them and reveal the translation, reinforcing memory. -> Justification: This approach transforms the static text into an active learning experience. Tabbed navigation is intuitive for structured content. Flip cards are a proven and engaging method for vocabulary acquisition. All interactions are handled with vanilla JavaScript, ensuring a lightweight and fast application. -> Library/Method: HTML/CSS/Tailwind for structure and styling, Vanilla JS for all interactions. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f8f7f4; /* Warm Neutral Background */
+        }
+        .nav-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-btn-active {
+            background-color: #0d9488; /* Teal-600 */
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .flip-card {
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="text-stone-800">
+
+    <div class="container mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-teal-800">7日間で学ぶ日本語会話プラン</h1>
+            <p class="mt-2 text-lg text-stone-600">An Interactive Guide to Basic Japanese Conversation</p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center gap-2 mb-8">
+            <button data-tab="pronunciation" class="nav-btn px-4 py-2 rounded-full font-semibold text-sm sm:text-base bg-white shadow-sm hover:bg-teal-100">Pronunciation</button>
+            <button data-tab="day1" class="nav-btn px-4 py-2 rounded-full font-semibold text-sm sm:text-base bg-white shadow-sm hover:bg-teal-100">Day 1</button>
+            <button data-tab="day2" class="nav-btn px-4 py-2 rounded-full font-semibold text-sm sm:text-base bg-white shadow-sm hover:bg-teal-100">Day 2</button>
+            <button data-tab="day3" class="nav-btn px-4 py-2 rounded-full font-semibold text-sm sm:text-base bg-white shadow-sm hover:bg-teal-100">Day 3</button>
+            <button data-tab="day4" class="nav-btn px-4 py-2 rounded-full font-semibold text-sm sm:text-base bg-white shadow-sm hover:bg-teal-100">Day 4</button>
+            <button data-tab="day5" class="nav-btn px-4 py-2 rounded-full font-semibold text-sm sm:text-base bg-white shadow-sm hover:bg-teal-100">Day 5</button>
+            <button data-tab="day6" class="nav-btn px-4 py-2 rounded-full font-semibold text-sm sm:text-base bg-white shadow-sm hover:bg-teal-100">Day 6</button>
+            <button data-tab="day7" class="nav-btn px-4 py-2 rounded-full font-semibold text-sm sm:text-base bg-white shadow-sm hover:bg-teal-100">Day 7</button>
+        </nav>
+
+        <main id="content-area">
+            <!-- Content will be dynamically inserted here -->
+        </main>
+    </div>
+
+    <script>
+        const planData = {
+            pronunciation: {
+                title: "Basic Pronunciation Guide",
+                goal: "Understand the fundamental sounds of Japanese.",
+                content: `
+                    <p class="mb-4 text-stone-700">Japanese pronunciation is generally straightforward, with each syllable having a clear sound. Mastering these basics will give you a strong foundation for speaking clearly.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-bold text-teal-700">Vowels (母音)</h4>
+                            <ul class="list-disc list-inside mt-2 space-y-1 text-stone-600">
+                                <li><b>a (あ):</b> like "a" in "father"</li>
+                                <li><b>i (い):</b> like "ee" in "feet"</li>
+                                <li><b>u (う):</b> like "oo" in "moon" - sometimes unvoiced (e.g., in です "desu", the 'u' is often silent)</li>
+                                <li><b>e (え):</b> like "e" in "egg"</li>
+                                <li><b>o (お):</b> like "o" in "go"</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-teal-700">Key Consonants (子音)</h4>
+                            <ul class="list-disc list-inside mt-2 space-y-1 text-stone-600">
+                                <li><b>R Sound:</b> A light tap of the tongue against the roof of your mouth, like the 'tt' in the American pronunciation of "butter". It's a mix between 'l', 'r', and 'd'.</li>
+                                <li><b>Double Consonants (っ):</b> A small 'tsu' indicates a brief pause before the next consonant. Example: にっぽん (Nippon) is pronounced "Nip-pon".</li>
+                                <li><b>Long Vowels:</b> Holding a vowel sound for longer, indicated by a repeated vowel (e.g., おかあさん - o-kaa-san) or a line over the letter in Romaji (ō).</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            day1: {
+                title: "Day 1: Greetings & Self-Introduction",
+                goal: "Learn to greet people and introduce yourself.",
+                phrases: [
+                    { jp: "こんにちは", romaji: "Konnichiwa", en: "Hello / Good afternoon" },
+                    { jp: "おはようございます", romaji: "Ohayou gozaimasu", en: "Good morning (formal)" },
+                    { jp: "こんばんは", romaji: "Konbanwa", en: "Good evening" },
+                    { jp: "はじめまして", romaji: "Hajimemashite", en: "Nice to meet you" },
+                    { jp: "どうぞよろしくおねがいします", romaji: "Douzo yoroshiku onegaishimasu", en: "Pleased to meet you" },
+                    { jp: "ありがとうございます", romaji: "Arigatou gozaimasu", en: "Thank you (formal)" },
+                    { jp: "すみません", romaji: "Sumimasen", en: "Excuse me / I'm sorry" },
+                ],
+                grammar: [
+                    { title: "です (desu)", explanation: "A polite copula like 'is/am/are'. It comes at the end of a sentence. Ex: わたしはアンナです (Watashi wa Anna desu) - I am Anna." },
+                    { title: "は (wa)", explanation: "The topic particle. It marks what you're talking about. Written with the 'ha' character (は) but pronounced 'wa'." },
+                ],
+                practice: [
+                    { front: "こんにちは", back: "Konnichiwa (Hello)" },
+                    { front: "はい", back: "Hai (Yes)" },
+                    { front: "いいえ", back: "Iie (No)" },
+                ]
+            },
+            day2: {
+                title: "Day 2: Basic Questions & Answers",
+                goal: "Learn to ask and answer simple questions.",
+                phrases: [
+                    { jp: "おげんきですか？", romaji: "Ogenki desu ka?", en: "How are you?" },
+                    { jp: "はい、げんきです。", romaji: "Hai, genki desu.", en: "Yes, I am fine." },
+                    { jp: "これはなんですか？", romaji: "Kore wa nan desu ka?", en: "What is this?" },
+                    { jp: "それはほんです。", romaji: "Sore wa hon desu.", en: "That is a book." },
+                    { jp: "おなまえは？", romaji: "O-namae wa?", en: "What is your name?" },
+                ],
+                grammar: [
+                    { title: "か (ka)", explanation: "The question particle. Add it to the end of a sentence to make it a question." },
+                    { title: "ではありません (dewa arimasen)", explanation: "The polite negative of です (desu). It means 'is not / am not'. Ex: 学生ではありません (Gakusei dewa arimasen) - I am not a student." },
+                    { title: "これ / それ / あれ", explanation: "Demonstrative pronouns: これ (kore) for things near you, それ (sore) for things near the listener, and あれ (are) for things far from both." },
+                ],
+                practice: [
+                    { front: "げんき", back: "Genki (Fine / Well)" },
+                    { front: "なん", back: "Nan (What)" },
+                    { front: "なまえ", back: "Namae (Name)" },
+                ]
+            },
+            day3: {
+                title: "Day 3: Numbers & Shopping",
+                goal: "Learn to count to 10 and ask for prices.",
+                phrases: [
+                    { jp: "いち, に, さん", romaji: "ichi, ni, san", en: "1, 2, 3" },
+                    { jp: "よん, ご, ろく", romaji: "yon, go, roku", en: "4, 5, 6" },
+                    { jp: "なな, はち, きゅう, じゅう", romaji: "nana, hachi, kyuu, juu", en: "7, 8, 9, 10" },
+                    { jp: "いくらですか？", romaji: "Ikura desu ka?", en: "How much is it?" },
+                    { jp: "これをください。", romaji: "Kore o kudasai.", en: "This one, please." },
+                ],
+                grammar: [
+                    { title: "を (o)", explanation: "The direct object particle. It marks the object of a verb. Written with を but pronounced 'o'. Ex: みずをください (Mizu o kudasai) - Water, please." },
+                    { title: "ください (kudasai)", explanation: "Means 'please give me'. Used when requesting an item." },
+                ],
+                practice: [
+                    { front: "いち (一)", back: "Ichi (One)" },
+                    { front: "ご (五)", back: "Go (Five)" },
+                    { front: "じゅう (十)", back: "Juu (Ten)" },
+                ]
+            },
+            day4: {
+                title: "Day 4: Common Verbs & Actions",
+                goal: "Learn common verbs in their polite form.",
+                phrases: [
+                    { jp: "たべます", romaji: "tabemasu", en: "to eat" },
+                    { jp: "のみます", romaji: "nomimasu", en: "to drink" },
+                    { jp: "みます", romaji: "mimasu", en: "to see / watch" },
+                    { jp: "ききます", romaji: "kikimasu", en: "to listen / ask" },
+                    { jp: "いきます", romaji: "ikimasu", en: "to go" },
+                    { jp: "かいます", romaji: "kaimasu", en: "to buy" },
+                ],
+                grammar: [
+                    { title: "-masu form (〜ます)", explanation: "The polite, present/future tense for verbs. It's a versatile form for everyday conversation." },
+                    { title: "に / へ (ni / e)", explanation: "Directional particles meaning 'to'. Use them to mark a destination. Ex: がっこうにいきます (Gakkou ni ikimasu) - I go to school." },
+                ],
+                practice: [
+                    { front: "たべます", back: "Tabemasu (to eat)" },
+                    { front: "のみます", back: "Nomimasu (to drink)" },
+                    { front: "いきます", back: "Ikimasu (to go)" },
+                ]
+            },
+            day5: {
+                title: "Day 5: Asking for Directions/Location",
+                goal: "Learn to ask where something is.",
+                phrases: [
+                    { jp: "えきはどこですか？", romaji: "Eki wa doko desu ka?", en: "Where is the station?" },
+                    { jp: "トイレはどこですか？", romaji: "Toire wa doko desu ka?", en: "Where is the restroom?" },
+                    { jp: "ここ / そこ / あそこ", romaji: "koko / soko / asoko", en: "here / there / over there" },
+                    { jp: "みぎ / ひだり", romaji: "migi / hidari", en: "right / left" },
+                    { jp: "まえ / うしろ", romaji: "mae / ushiro", en: "front / behind" },
+                ],
+                grammar: [
+                    { title: "どこ (doko)", explanation: "The question word for 'where'. Used with the topic particle は (wa) and ですか (desu ka)." },
+                    { title: "の (no)", explanation: "The possessive particle. Can link nouns, like 'AのB' (B of A). Ex: つくえのうえ (tsukue no ue) - on top of the desk." },
+                ],
+                practice: [
+                    { front: "どこ", back: "Doko (Where?)" },
+                    { front: "みぎ", back: "Migi (Right)" },
+                    { front: "ひだり", back: "Hidari (Left)" },
+                ]
+            },
+            day6: {
+                title: "Day 6: Time & Daily Routine",
+                goal: "Learn to tell time and talk about daily actions.",
+                phrases: [
+                    { jp: "いまなんじですか？", romaji: "Ima nan-ji desu ka?", en: "What time is it now?" },
+                    { jp: "ごじです。", romaji: "Go-ji desu.", en: "It's 5 o'clock." },
+                    { jp: "ごぜん / ごご", romaji: "gozen / gogo", en: "A.M. / P.M." },
+                    { jp: "おきます", romaji: "okimasu", en: "to wake up" },
+                    { jp: "ねます", romaji: "nemasu", en: "to sleep" },
+                ],
+                grammar: [
+                    { title: "に (ni) for time", explanation: "The particle に is used to mark a specific point in time when an action occurs. Ex: しちじにおきます (Shichi-ji ni okimasu) - I wake up at 7 o'clock." },
+                    { title: "〜じ (-ji)", explanation: "The counter for hours of the day. Attach it to a number to say 'o'clock'." },
+                ],
+                practice: [
+                    { front: "いま", back: "Ima (Now)" },
+                    { front: "なんじ", back: "Nan-ji (What time?)" },
+                    { front: "ねます", back: "Nemasu (to sleep)" },
+                ]
+            },
+            day7: {
+                title: "Day 7: Review & Conversation Practice",
+                goal: "Consolidate your learning and try a basic conversation.",
+                content: `
+                    <p class="mb-4 text-stone-700">Let's put everything together! Review the phrases and grammar from the past week. Try reading the following dialogue out loud to practice your flow and pronunciation.</p>
+                    <div class="bg-teal-50 border-l-4 border-teal-500 p-4 rounded-r-lg">
+                        <p class="font-semibold">You: <span class="font-normal text-lg">こんにちは！はじめまして。</span></p>
+                        <p class="text-sm text-stone-500 mb-2">Konnichiwa! Hajimemashite.</p>
+                        
+                        <p class="font-semibold">Friend: <span class="font-normal text-lg">こんにちは！おなまえは？</span></p>
+                        <p class="text-sm text-stone-500 mb-2">Konnichiwa! O-namae wa?</p>
+
+                        <p class="font-semibold">You: <span class="font-normal text-lg">わたしは [Your Name] です。おげんきですか？</span></p>
+                        <p class="text-sm text-stone-500 mb-2">Watashi wa [Your Name] desu. Ogenki desu ka?</p>
+
+                        <p class="font-semibold">Friend: <span class="font-normal text-lg">はい、げんきです。ありがとうございます。</span></p>
+                        <p class="text-sm text-stone-500 mb-2">Hai, genki desu. Arigatou gozaimasu.</p>
+                    </div>
+                    <p class="mt-6 font-semibold text-teal-700">Congratulations! You've built a great foundation. Keep practicing every day!</p>
+                `
+            }
+        };
+
+        const contentArea = document.getElementById('content-area');
+        const navButtons = document.querySelectorAll('.nav-btn');
+
+        function renderContent(tab) {
+            const data = planData[tab];
+            if (!data) return;
+
+            let phrasesHtml = '';
+            if (data.phrases) {
+                phrasesHtml = `
+                    <h3 class="text-xl font-semibold text-teal-700 mt-6 mb-3">Essential Phrases</h3>
+                    <div class="space-y-2">
+                        ${data.phrases.map(p => `
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <p class="text-lg font-medium">${p.jp}</p>
+                                <p class="text-sm text-teal-600">${p.romaji}</p>
+                                <p class="text-sm text-stone-500">${p.en}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            let grammarHtml = '';
+            if (data.grammar) {
+                grammarHtml = `
+                    <h3 class="text-xl font-semibold text-teal-700 mt-6 mb-3">Foundational Grammar</h3>
+                    <div class="space-y-3">
+                        ${data.grammar.map(g => `
+                            <div class="bg-stone-100 p-3 rounded-lg">
+                                <h4 class="font-bold text-stone-800">${g.title}</h4>
+                                <p class="text-stone-600">${g.explanation}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            let practiceHtml = '';
+            if (data.practice) {
+                practiceHtml = `
+                    <h3 class="text-xl font-semibold text-teal-700 mt-6 mb-3">Practice Zone (Click to Flip)</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        ${data.practice.map(p => `
+                            <div class="flip-card h-24 sm:h-32">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front bg-teal-200 text-teal-800 font-bold text-xl p-2">${p.front}</div>
+                                    <div class="flip-card-back bg-white text-stone-700 font-semibold p-2">${p.back}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            let contentHtml = data.content || `${phrasesHtml}${grammarHtml}${practiceHtml}`;
+
+            contentArea.innerHTML = `
+                <div id="${tab}-content" class="tab-content bg-stone-50/50 backdrop-blur-sm rounded-xl shadow-lg p-6 sm:p-8">
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-2">${data.title}</h2>
+                    <p class="text-stone-600 mb-4">${data.goal}</p>
+                    <hr class="border-stone-200 mb-6">
+                    ${contentHtml}
+                </div>
+            `;
+            
+            document.querySelectorAll('.flip-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    card.classList.toggle('flipped');
+                });
+            });
+        }
+
+        function handleNavClick(e) {
+            const clickedTab = e.target.dataset.tab;
+            if (!clickedTab) return;
+
+            navButtons.forEach(btn => {
+                btn.classList.remove('nav-btn-active');
+                if (btn.dataset.tab === clickedTab) {
+                    btn.classList.add('nav-btn-active');
+                }
+            });
+            renderContent(clickedTab);
+        }
+
+        navButtons.forEach(btn => btn.addEventListener('click', handleNavClick));
+
+        document.querySelector('[data-tab="pronunciation"]').click();
+    </script>
+
+</body>
+</html>
